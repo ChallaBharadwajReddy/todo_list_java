@@ -1,6 +1,9 @@
 package com.example.todo_app;
 import java.util.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,12 +11,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Document(collection = "todo")
 class Todo{
+
+    @Id
+    public String _id;
+
     public String id ;
     public String todo;
 
-    public Todo(){
-
+    public Todo(String id, String todo){
+        this.id = id;
+        this.todo = todo;
     }
 
     public String getId() {
@@ -30,49 +39,52 @@ class Todo{
 @RestController
 public class Todo_list_api {
 
-    List<Todo> todo_list = new ArrayList<>();
+    @Autowired
+    private TodoRepository todoRepository;
 
-    // public void add_data(){
-    //     todo.add("Complete project");
-    //     todo.add("start studing");
-    // }
-    
+
+    List<Todo> todo_list = new ArrayList<>();
     
     @GetMapping("/get_list")
     public List<Todo> get_list(){
         // add_data();
-        return todo_list;
+        return todoRepository.findAll();
 
     }
 
     @PostMapping("/add_todo")
     public String add_todo(@RequestBody Todo todo){
-        todo_list.add(todo);
+        todoRepository.save(todo);
         return "Success" ;
     }
 
     @PostMapping("/edit_todo")
     public String edit_todo(@RequestBody Todo new_todo){
-        for(Todo item : todo_list){
-            if(item.getId().equals(new_todo.id)){
-                item.setTodo(new_todo.todo);
-                return "Success";
-            }
+
+        List<Todo> existingTodoOpt = todoRepository.findAllByid(new_todo.id);
+
+        if (!existingTodoOpt.isEmpty()) {
+            Todo existingTodo = existingTodoOpt.get(0);
+            existingTodo.setTodo(new_todo.todo);
+            todoRepository.save(existingTodo);
+            return "Success";
+        } else {
+            return "Todo not found";
         }
 
-        return "Todo not found";
     }
     
     @DeleteMapping("/delete/{id}")
     public String Delete_todo(@PathVariable String id){
-        for(Todo item : todo_list){
-            if(item.getId().equals(id)){
-                todo_list.remove(item);
-                return "Success";
-            }
-        }
+        List<Todo> existingTodoOpt = todoRepository.findAllByid(id);
 
-        return "Todo not found";
+        if (!existingTodoOpt.isEmpty()) {
+            Todo existingTodo = existingTodoOpt.get(0);
+            todoRepository.delete(existingTodo);
+            return "Success";
+        } else {
+            return "Todo not found";
+        }
     }
 
 }
