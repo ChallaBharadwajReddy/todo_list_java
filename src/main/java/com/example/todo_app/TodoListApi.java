@@ -1,5 +1,5 @@
 package com.example.todo_app;
-import java.util.*;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,8 +19,6 @@ public class TodoListApi {
     @Autowired
     private TodoService service;
 
-
-    List<Todo> todo_list = new ArrayList<>();
     
     @GetMapping("/list")
     public List<Todo> get_list(){
