@@ -4,6 +4,8 @@ import java.beans.JavaBean;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.todo_app.Dao.Todo;
@@ -16,16 +18,19 @@ public class TodoService {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Cacheable(value = "todoList")
     public List<Todo> get_list(){
         // add_data();
         return todoRepository.findAll();
     }
 
+    @CacheEvict(value = "todoList", allEntries = true)
     public String add_todo(Todo todo){
         todoRepository.save(todo);
         return "Success" ;
     }
 
+    @CacheEvict(value = "todoList", allEntries = true)
     public String edit_todo(Todo new_todo){
 
         List<Todo> existingTodoOpt = todoRepository.findAllByid(new_todo.id);
@@ -41,6 +46,7 @@ public class TodoService {
 
     }
 
+    @CacheEvict(value = "todoList", allEntries = true)
     public String Delete_todo(String id){
         List<Todo> existingTodoOpt = todoRepository.findAllByid(id);
 

@@ -1,12 +1,16 @@
 package com.example.todo_app.Dao;
 
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @Document(collection = "todo")
-public class Todo {
+public class Todo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     
     @Id
     public String _id;
