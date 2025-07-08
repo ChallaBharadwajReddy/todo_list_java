@@ -7,55 +7,69 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
+import com.example.todo_app.Dao.Query;
 
 import com.example.todo_app.Dao.Todo;
-import com.example.todo_app.Dao.TodoRepository;
-
 @Service
 @JavaBean
 public class TodoService {
 
     @Autowired
-    private TodoRepository todoRepository;
+    private Query query;
 
     @Cacheable(value = "todoList")
     public List<Todo> get_list(){
-        // add_data();
-        return todoRepository.findAll();
+        return query.getAllDeleteFalse();
     }
 
     @CacheEvict(value = "todoList", allEntries = true)
     public String add_todo(Todo todo){
-        todoRepository.save(todo);
-        return "Success" ;
+        try{
+            query.saveTodo(todo);
+            return "Success" ;
+        }
+        catch(Error err){
+            return "Error adding todo";
+        }
     }
 
     @CacheEvict(value = "todoList", allEntries = true)
-    public String edit_todo(Todo new_todo){
+    public String edit_todo(Todo todo){
+        try{
+            Optional<Todo> existingTodoOpt = query.getTodoById(todo.getId());
 
-        List<Todo> existingTodoOpt = todoRepository.findAllByid(new_todo.id);
-
-        if (!existingTodoOpt.isEmpty()) {
-            Todo existingTodo = existingTodoOpt.get(0);
-            existingTodo.setTodo(new_todo.todo);
-            todoRepository.save(existingTodo);
-            return "Success";
-        } else {
-            return "Todo not found";
+            if (existingTodoOpt.isPresent()) {
+                Todo existingTodo = existingTodoOpt.get();
+                existingTodo.setTodo(todo.todo);
+                query.saveTodo(existingTodo);
+                return "Success";
+            } else {
+                return "Todo not found";
+            }
+        }
+        catch(Error err){
+            return "Error editing todo";
         }
 
     }
 
     @CacheEvict(value = "todoList", allEntries = true)
     public String Delete_todo(String id){
-        List<Todo> existingTodoOpt = todoRepository.findAllByid(id);
+        try{
+            Optional<Todo> existingTodoOpt = query.getTodoById(id);
 
-        if (!existingTodoOpt.isEmpty()) {
-            Todo existingTodo = existingTodoOpt.get(0);
-            todoRepository.delete(existingTodo);
-            return "Success";
-        } else {
-            return "Todo not found";
+            if (existingTodoOpt.isPresent()) {
+                Todo existingTodo = existingTodoOpt.get();
+                existingTodo.setDelete();
+                query.saveTodo(existingTodo);
+                return "Success";
+            } else {
+                return "Todo not found";
+            }
+        }
+        catch(Error err){
+            return "Error deleting todo";
         }
     }
 }

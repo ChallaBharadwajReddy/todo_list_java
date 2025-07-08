@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,23 +21,22 @@ public class TodoListApi {
     private TodoService service;
 
     
-    @GetMapping("/list")
+    @GetMapping("/todo")
     public List<Todo> get_list(){
         // add_data();
         return service.get_list();
 
     }
 
-    @PostMapping("/new-todo")
+    @PostMapping("/todo")
     public String add_todo(@RequestBody Todo todo){
         return service.add_todo(todo);
     }
 
-    @PostMapping("/todo")
+    @PutMapping("/todo")
     public String edit_todo(@RequestBody Todo new_todo){
 
         return service.edit_todo(new_todo);
-
     }
     
     @DeleteMapping("/todo/{id}")
