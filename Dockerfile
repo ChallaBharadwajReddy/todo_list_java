@@ -14,6 +14,6 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 
 COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
